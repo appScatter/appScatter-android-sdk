@@ -1,0 +1,6 @@
+apply from: rootProject.file('common-providers.gradle')
+
+dependencies {
+    // includes Fortumo SDK via the jar file
+    provided fileTree(include: ['*.jar'], dir: 'libs')
+}

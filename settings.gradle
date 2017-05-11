@@ -1,0 +1,10 @@
+include ':core', ':utils', ':openstore', ':google', ':samsung', ':amazon', ':fortumo', ':aptoide',
+        ':slideme'
+
+project(':openstore').projectDir = new File('billingProviders/openstore')
+project(':google').projectDir = new File('billingProviders/google')
+project(':samsung').projectDir = new File('billingProviders/samsung')
+project(':amazon').projectDir = new File('billingProviders/amazon')
+project(':fortumo').projectDir = new File('billingProviders/fortumo')
+project(':aptoide').projectDir = new File('billingProviders/aptoide')
+project(':slideme').projectDir = new File('billingProviders/slideme')

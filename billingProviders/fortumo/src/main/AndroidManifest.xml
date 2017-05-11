@@ -1,0 +1,38 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.appscatter.iab.stores.fortumo">
+
+    <!--<uses-permission android:name="android.permission.INTERNET" />-->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+
+    <!-- Define your own permission to protect payment broadcast -->
+    <permission android:name="com.appscatter.iab.stores.fortumo.PAYMENT_BROADCAST_PERMISSION"
+                android:label="Read payment status"
+                android:protectionLevel="signature" />
+    <!-- "signature" permission granted automatically by system, without notifying user. -->
+    <uses-permission android:name="com.appscatter.iab.stores.fortumo.PAYMENT_BROADCAST_PERMISSION" />
+
+
+    <application android:allowBackup="true"
+                 android:label="@string/app_name"
+                 android:supportsRtl="true"
+    >
+
+        <!-- Declare these objects, this is part of Fortumo SDK, and should not be called directly -->
+        <receiver android:name="mp.MpSMSReceiver">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+        <service android:name="mp.MpService" />
+        <service android:name="mp.StatusUpdateService" />
+        <activity android:name="mp.MpActivity"
+                  android:theme="@android:style/Theme.Translucent.NoTitleBar"
+                  android:configChanges="orientation|keyboardHidden|screenSize" />
+
+
+    </application>
+
+</manifest>

@@ -1,0 +1,7 @@
+apply from: rootProject.file('common.gradle')
+
+dependencies {
+    compile project(':core')
+    compile "com.android.support:support-annotations:$project.supportLibVersion"
+    testCompile 'junit:junit:4.12'
+}
