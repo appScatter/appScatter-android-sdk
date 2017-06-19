@@ -51,7 +51,7 @@ Available providers :
 
 ## Samples
 For specifics on the implementation please refer to the Trivial Drive example.
-* [TrivialDrive](https://github.com/appScatter/TrivialDrive)
+* [TrivialDrive](https://github.com/appScatter/Trivial-Drive)
 
 ## Improvements
 AppScatter build upon the good concept originally developed by the One Platform Foundation and added support for the Fortumo provider, proprietary Aptoide SDK implementation and SlideMe Proprietary SDK implementation.
