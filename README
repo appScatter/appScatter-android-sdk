@@ -1,11 +1,11 @@
-APPSCATTER_IAP-module
+APPSCATTER_IAB-module
 
-IAP (In App Purchasing)
+IAB (In App Billing)
 
 AIM
 App module/SDK that Appscatter can distribute that will allow app developers the ability to perform in-app purchases in a single code base across multiple app stores relevant to where it was downloaded from. 
 
-We will need to support stores with Native IAP integration, for stores without we will integrate Fortumo (https://fortumo.com/). The SDK will need to standardise the purchasing process across all the stores so the work from the app developer perspective (end user), is minimal. 
+We will need to support stores with Native IAB integration, for stores without we will integrate Fortumo (https://fortumo.com/). The SDK will need to standardise the purchasing process across all the stores so the work from the app developer perspective (end user), is minimal. 
 
 Once a module/SDK have been developed NATIVELY we intend to roll it out to support Hybrid development platforms for example: Appcelerator (http://www.appcelerator.com/), PhoneGap (http://phonegap.com/), Cordova (https://cordova.apache.org/)
 

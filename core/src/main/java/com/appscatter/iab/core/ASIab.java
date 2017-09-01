@@ -46,10 +46,12 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.util.Pair;
 
+import java.io.File;
 import java.util.Set;
 
 import io.reactivex.Observable;
@@ -68,7 +70,6 @@ public final class ASIab {
     private static Pair<String, String> providerInfo;
     private static IapProductList mProductList;
     private static boolean mPending = false;
-
     private static PublishProcessor<ASEvent> mBus = PublishProcessor.create();
 
     private ASIab() {
@@ -203,7 +204,7 @@ public final class ASIab {
      */
 //    @SuppressFBWarnings({"LI_LAZY_INIT_UPDATE_STATIC", "LI_LAZY_INIT_STATIC"})
     public static void init(@NonNull final Application application,
-            @NonNull final Configuration configuration) {
+                             @NonNull final Configuration configuration) {
         ASLog.logMethod(configuration);
         ASChecks.checkThread(true);
         ASIab.mContext = application.getApplicationContext();
@@ -231,10 +232,10 @@ public final class ASIab {
                     if (c.moveToFirst()) {
                         int columnIndex = c.getColumnIndex(DownloadManager.COLUMN_STATUS);
                         if (DownloadManager.STATUS_SUCCESSFUL == c.getInt(columnIndex)) {
+                            String path = mApplication.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) + File.separator + "appscatter_configuration.json";
 
-                            String uriString = c.getString(c.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME));
                             try {
-                                String jsonProducts = ASIabUtils.getStringFromFile(uriString);
+                                String jsonProducts = ASIabUtils.getStringFromFile(path);
                                 ASIab.mProductList = new IapProductList(jsonProducts);
 
                                 initialize(ASIab.mApplication, getPreferedConfiguration(listener));
@@ -242,7 +243,7 @@ public final class ASIab {
                                 e.printStackTrace();
                             }
                             ASIab.providerInfo = getInstallerDownloadFileName("", ASUtils.getPackageInstaller(ASIab.mContext));
-                            downloadProviderInfo(ASIab.providerInfo.first);
+                            mEnqueue = enqueueDownload(ASIab.providerInfo.first);
                         }
                     }
                 }
@@ -253,7 +254,7 @@ public final class ASIab {
         ASIab.mContext.registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
 
         ASIab.providerInfo = getInstallerDownloadFileName(ASIab.mAppScatterId, ASUtils.getPackageInstaller(ASIab.mContext));
-        downloadProviderInfo(ASIab.providerInfo.first);
+        mEnqueue = enqueueDownload(ASIab.providerInfo.first);
 
     }
 
@@ -324,6 +325,14 @@ public final class ASIab {
         if (userHash != null && !userHash.isEmpty()) {
             downloadFileName += "/users/" + userHash + "/appscatter.products.";
 
+            // This should not happen, as it means that the app was not installed from one of the stores.
+            if (currentInstallerPackage == null) {
+                currentInstallerPackage = ASUtils.getPackageInstaller(ASIab.mContext);
+                if (currentInstallerPackage == null) {
+                    currentInstallerPackage = "";
+                }
+            }
+
             if (currentInstallerPackage.equals(Providers.Namespaces.GOOGLE)) {
                 downloadFileName += Providers.GOOGLE;
                 providerClass = Providers.Classes.GOOGLE;
@@ -349,9 +358,10 @@ public final class ASIab {
                 if (ASUtils.isGooglePlayInstalled(ASIab.mContext)) {
                     downloadFileName += Providers.GOOGLE;
                     providerClass = Providers.Classes.GOOGLE;
+                } else {
+                    downloadFileName = downloadFileName.substring(0, downloadFileName.length()-1);
                 }
             }
-
         }
 
         downloadFileName += ".json";
@@ -371,7 +381,7 @@ public final class ASIab {
             // caller can directly invoke methods in the interface.
             // Alternatively, the caller can invoke methods through reflection,
             // which is more verbose.
-            billingProvider = (BillingProvider)libProviderClass.newInstance();
+            billingProvider = (BillingProvider) libProviderClass.newInstance();
             billingProvider.init(mContext,
                     billingProvider.getSkuResolver(ASIab.mProductList),
                     billingProvider.getPurchaseVerifier(ASIab.mProductList.getHash()));
@@ -391,13 +401,10 @@ public final class ASIab {
         return preferedConfiguration;
     }
 
-    private static void downloadProviderInfo(final String filename) {
-
+    private static long enqueueDownload(final String filename) {
         DownloadManager dm = (DownloadManager) mContext.getSystemService(DOWNLOAD_SERVICE);
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(filename));
         request.setVisibleInDownloadsUi(false);
-        mEnqueue = dm.enqueue(request);
-
+        return dm.enqueue(request);
     }
-
 }

@@ -1,0 +1,23 @@
+apply plugin: 'com.jfrog.bintray'
+
+bintray {
+    user = 'appscatter'
+    key = project.rootProject.hasProperty('bintrayApiKey') ? project.rootProject.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+    publications = ['Bintray']
+
+    dryRun = true
+
+    pkg {
+        repo = 'AppScatterSDK'
+        name = project.getDisplayName()
+        licenses = ['MIT']
+        // TODO: change that url once we publish on github. IMPORTANT - we can't publish on jCenter without having public repo
+        vcsUrl = 'https://github.com/bintray/gradle-bintray-plugin.git'
+        version {
+            gpg {
+                sign = true
+                passphrase =  project.rootProject.hasProperty('bintrayGPGPassphrase') ? project.rootProject.property('bintrayGPGPassphrase') : System.getenv('BINTRAY_GPG_PASSPHRASE')
+            }
+        }
+    }
+}

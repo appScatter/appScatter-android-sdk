@@ -1,8 +1,7 @@
 apply plugin: 'com.android.library'
 
 //Maven upload
-apply plugin: 'maven'
-apply plugin: 'signing'
+//apply plugin: 'maven'
 apply plugin: 'me.tatarka.retrolambda'
 
 //Common android properties
@@ -17,6 +16,10 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         multiDexEnabled  true
+    }
+
+    lintOptions {
+        lintConfig file("lint.xml")
     }
 
     buildTypes {
@@ -38,71 +41,9 @@ android {
     }
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            if (shouldUploadRemote()) {
-                println("Deploying to Nexus...")
-                repository(url: getNexusRemoteRepoUrl()) {
-                    authentication(userName: project.mavenUsername, password: project.mavenPassword)
-                }
-            } else {
-                println("Deploying locally...")
-                def pathLocalRepo = "file://" + System.properties['user.home'] + project.mavenUrlLocal
-                repository(url: pathLocalRepo)
-            }
-
-            pom.artifactId = project.name
-            pom.groupId = project.packageId
-            pom.version = versionName()
-
-            pom.project {
-                packaging = 'aar'
-            }
-        }
-    }
-}
-
 dependencies {
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
     compile 'io.reactivex.rxjava2:rxjava:2.0.3'
 }
 
-// ** Helper Methods **
-
-// If true uploads the archives to the remote server.
-// If false transfer the archives to the local Maven repository.
-boolean shouldUploadRemote() {
-    return isCIMachine()
-}
-
-// Should evaluate to true if it is running in a CI server.
-boolean isCIMachine() {
-    return System.env['APPSCATTER_CI_MACHINE'].equals("true")
-}
-
-boolean isRelease() {
-    return System.env['APPSCATTER_RELEASE'].equals("true")
-}
-
-String getVersionCode() {
-    return System.env['BUILD_NUMBER'] ?: "0"
-}
-
-String getNexusRemoteRepoUrl() {
-    if (isRelease()) {
-        return project.mavenUrlRelease
-    } else {
-        return project.mavenUrlSnapshots
-    }
-}
-
-// Version name is the version defined in properties concatenated with the current version code.
-String versionName() {
-    def versionName = project.packageVersion + "." + getVersionCode()
-    if (!isRelease()) {
-        versionName += "-SNAPSHOT"
-    }
-
-    return versionName
-}
+apply from: '../maven-aar-publish.gradle'

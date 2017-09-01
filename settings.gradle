@@ -1,6 +1,5 @@
 include ':core', ':utils', ':openstore', ':google', ':samsung', ':amazon', ':fortumo', ':aptoide',
-        ':slideme'
-
+        ':slideme', ':plugin', ':metrics'
 project(':openstore').projectDir = new File('billingProviders/openstore')
 project(':google').projectDir = new File('billingProviders/google')
 project(':samsung').projectDir = new File('billingProviders/samsung')

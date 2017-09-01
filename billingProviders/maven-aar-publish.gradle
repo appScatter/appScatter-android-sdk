@@ -1,0 +1,98 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+publishing {
+    publications {
+        Bintray(MavenPublication) {
+            artifactId = project.name
+            groupId = project.packageId
+            version = versionName()
+
+            artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
+
+            pom.withXml {
+                def dependencies = asNode().appendNode('dependencies')
+                configurations.getByName("_releaseCompile").getResolvedConfiguration().getFirstLevelModuleDependencies().each {
+
+                    // this is necessary to have override local project dependency
+                    // otherwise the groupId and version would not be correct
+                    def dependency = dependencies.appendNode('dependency')
+                    if (it.moduleGroup == rootProject.name) {
+                        dependency.appendNode('groupId', groupId)
+                        dependency.appendNode('artifactId', it.moduleName)
+                        dependency.appendNode('version', version)
+                    } else {
+                        dependency.appendNode('groupId', it.moduleGroup)
+                        dependency.appendNode('artifactId', it.moduleName)
+                        dependency.appendNode('version', it.moduleVersion)
+                    }
+                }
+            }
+        }
+
+        Nexus(MavenPublication) {
+            artifactId = project.name
+            groupId = project.packageId
+            version = versionName()
+
+            artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
+
+            pom.withXml {
+                def dependencies = asNode().appendNode('dependencies')
+                configurations.getByName("_releaseCompile").getResolvedConfiguration().getFirstLevelModuleDependencies().each {
+
+                    // this is necessary to have override local project dependency
+                    // otherwise the groupId and version would not be correct
+                    def dependency = dependencies.appendNode('dependency')
+                    if (it.moduleGroup == rootProject.name) {
+                        dependency.appendNode('groupId', groupId)
+                        dependency.appendNode('artifactId', it.moduleName)
+                        dependency.appendNode('version', version)
+                    } else {
+                        dependency.appendNode('groupId', it.moduleGroup)
+                        dependency.appendNode('artifactId', it.moduleName)
+                        dependency.appendNode('version', it.moduleVersion)
+                    }
+                }
+            }
+
+            repositories {
+                maven {
+                    name 'AppScatterNexus'
+                    url getNexusRemoteRepoUrl()
+                    credentials {
+                        username project.rootProject.properties['mavenUser']
+                        password project.rootProject.properties['mavenPassword']
+                    }
+                }
+            }
+        }
+    }
+}
+
+boolean isRelease() {
+    return System.env['APPSCATTER_RELEASE'].equals("true")
+}
+
+String getNexusRemoteRepoUrl() {
+    if (isRelease()) {
+        return project.mavenUrlRelease
+    } else {
+        return project.mavenUrlSnapshots
+    }
+}
+
+String versionName() {
+    def versionName = project.packageVersion + "." + getVersionCode()
+    if (!isRelease()) {
+        versionName += "-SNAPSHOT"
+    }
+
+    return versionName
+}
+
+String getVersionCode() {
+    return System.env['BUILD_NUMBER'] ?: "0"
+}
+
+apply from: '../maven-publication-exclusion.gradle'

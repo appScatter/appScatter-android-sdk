@@ -7,7 +7,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.2.3'
-
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
         classpath 'me.tatarka:gradle-retrolambda:3.4.0'
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -33,18 +33,12 @@ allprojects {
 
         supportLibVersion = "25.1.0"
 
-        // Place where the url for you maven repository to upload the packages to
         mavenUrlLocal = "/.m2/repository"
-        mavenUrlRelease = ""
-        mavenUrlSnapshots = ""
+        mavenUrlRelease = "https://nexus.appscatter.tools/content/repositories/releases/"
+        mavenUrlSnapshots = "https://nexus.appscatter.tools/content/repositories/snapshots/"
 
-        mavenUsername = ""
-        mavenPassword = ""
-
-        // place here your domain of your S3 bucket where the configuration files are stored
-        // Don't forget to go to the common.gradle file and edit the S3 path or replace by your own server
-        s3BucketRelease = ""
-        s3BucketQA = ""
+        s3BucketRelease = "appscatter-mobilesdk-public"
+        s3BucketQA = "appscatter-mobilesdk-public-qa"
     }
 }
 
