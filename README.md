@@ -1,4 +1,6 @@
+
 ## The AppScatter IAP (In App Purchase) SDK
+
 
 As a continuous service to our Developers, AppScatter provides this SDK that will ease the implementation of In App Billing inside the applications.
 This SDK is based and improves on the good work done by the One Platform Foundation team that previously provided a [base version] for this library.

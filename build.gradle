@@ -1,0 +1,47 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.2.3'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        classpath 'me.tatarka:gradle-retrolambda:3.4.0'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+
+    ext {
+        packageId = "com.appscatter.iab"
+        packageVersion = "0.4"
+
+        compileSdkVersion = 25
+        buildToolsVersion = "25"
+
+        minSdkVersion = 16
+        targetSdkVersion = 25
+
+        supportLibVersion = "25.1.0"
+
+        mavenUrlLocal = "/.m2/repository"
+        mavenUrlRelease = "https://nexus.appscatter.tools/content/repositories/releases/"
+        mavenUrlSnapshots = "https://nexus.appscatter.tools/content/repositories/snapshots/"
+
+        s3BucketRelease = "appscatter-mobilesdk-public"
+        s3BucketQA = "appscatter-mobilesdk-public-qa"
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}

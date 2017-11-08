@@ -1,0 +1,79 @@
+apply plugin: 'maven-publish'
+
+publishing {
+    publications {
+        Bintray(MavenPublication) {
+            artifactId = project.name
+            groupId = project.packageId
+            version = versionName()
+
+            from components.java
+
+            // this is a workaround to append dependencies properly according to:
+            // https://github.com/gradle/gradle/issues/1118 (bug not fixed in gradle 3.4 as stated, though)
+            pom.withXml {
+                asNode().dependencies.'*'.findAll() {
+                    it.scope.text() == 'runtime' && project.configurations.compile.allDependencies.find { dep ->
+                        dep.name == it.artifactId.text()
+                    }
+                }.each { it.scope*.value = 'compile'}
+            }
+        }
+
+        Nexus(MavenPublication) {
+            artifactId = project.name
+            groupId = project.packageId
+            version = versionName()
+
+            from components.java
+
+            // this is a workaround to append dependencies properly according to:
+            // https://github.com/gradle/gradle/issues/1118 (bug not fixed in gradle 3.4 as stated, though)
+            pom.withXml {
+                asNode().dependencies.'*'.findAll() {
+                    it.scope.text() == 'runtime' && project.configurations.compile.allDependencies.find { dep ->
+                        dep.name == it.artifactId.text()
+                    }
+                }.each { it.scope*.value = 'compile'}
+            }
+
+            repositories {
+                maven {
+                    name 'AppScatterNexus'
+                    url getNexusRemoteRepoUrl()
+                    credentials {
+                        username project.rootProject.properties['mavenUser']
+                        password project.rootProject.properties['mavenPassword']
+                    }
+                }
+            }
+        }
+    }
+}
+
+boolean isRelease() {
+    return System.env['APPSCATTER_RELEASE'].equals("true")
+}
+
+String getNexusRemoteRepoUrl() {
+    if (isRelease()) {
+        return project.mavenUrlRelease
+    } else {
+        return project.mavenUrlSnapshots
+    }
+}
+
+String versionName() {
+    def versionName = project.packageVersion + "." + getVersionCode()
+    if (!isRelease()) {
+        versionName += "-SNAPSHOT"
+    }
+
+    return versionName
+}
+
+String getVersionCode() {
+    return System.env['BUILD_NUMBER'] ?: "0"
+}
+
+apply from: '../maven-publication-exclusion.gradle'

@@ -1,0 +1,13 @@
+
+afterEvaluate {
+    tasks.withType(PublishToMavenRepository).all { publishTask ->
+        publishTask.onlyIf { task ->
+            if(task.name.toString().toLowerCase().contains("bintray")) {
+                task.enabled = false
+                task.group = null
+                return false
+            }
+            return true
+        }
+    }
+}
